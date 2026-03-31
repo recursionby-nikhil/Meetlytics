@@ -36,7 +36,7 @@ Most tools stop at transcription. Meetlytics goes from **discussion → tasks �
 |---|---|
 | Frontend | React 18, Vite |
 | Backend | FastAPI (Python) |
-| AI — Extraction | GPT-4o / Gemini / Mock |
+| AI — Extraction | GPT-4o / Gemini / Mock / Nvidia / Groq |
 | AI — Transcription | OpenAI Whisper |
 | Memory store | JSON (local persistence) |
 
@@ -109,21 +109,33 @@ cp .env.example .env
 #### `.env` configuration
 
 ```env
-# Choose provider: mock | gemini | openai
-AI_PROVIDER=mock
+# ── Choose your AI provider ──────────────────────────
 
-# Gemini (free) — get key at aistudio.google.com/app/apikey
-GEMINI_API_KEY=your-gemini-key-here
+# mock(fake) || gemini(paid) || openai(paid) || groq(free) || nvidia(free)
+AI_PROVIDER=groq
 
-# OpenAI (paid) — get key at platform.openai.com/api-keys
-OPENAI_API_KEY=your-openai-key-here
+# nvidia
+NVIDIA_API_KEY=nvidia_api_key
+NVIDIA_MODEL=z-ai/glm5
+
+# Groq
+GROQ_API_KEY=groq_api_key
+GROQ_MODEL=meta-llama/llama-4-scout-17b-16e-instruct
+
+# Gemini
+GEMINI_API_KEY=gemini_api_key
+
+# OpenAI
+OPENAI_API_KEY=openai_api_key
 ```
 
 | `AI_PROVIDER` value | What happens |
 |---|---|
 | `mock` | Instant demo data, no API key needed |
-| `gemini` | Uses Gemini API (free tier available) |
-| `openai` | Uses GPT-4o + Whisper (paid) |
+| `gemini` | Uses Gemini API (paid tier) |
+| `openai` | Uses GPT-4o + Whisper (paid tier) |
+| `groq` | Uses meta-llama-4 (free tier) |
+| `nvidia` | Uses glm5 (free tier) |
 
 #### Start the backend
 
@@ -186,7 +198,7 @@ This is the core innovation. It's not just extraction — it's **memory**.
 
 ## Built For
 
-**Hackathon — AI Meeting-to-Action System Track**
+**Hackatron — AI Meeting-to-Action System Track**
 
 Solving the universal problem: meetings happen, decisions get made, nothing gets done.
 

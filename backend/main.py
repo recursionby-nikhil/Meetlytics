@@ -64,7 +64,7 @@ elif AI_PROVIDER == "gemini":
 elif AI_PROVIDER == "groq":
     from groq import Groq
     groq_client = Groq(api_key=os.getenv("GROQ_API_KEY"))
-    print(f"✅ Using Groq ({os.getenv('GROQ_MODEL', 'llama-3.3-70b-versatile')})") 
+    print(f"✅ Using Groq ({os.getenv('GROQ_MODEL', 'meta-llama/llama-4-scout-17b-16e-instruct')})") 
     def groq_call(prompt: str) -> str:
         response = groq_client.chat.completions.create(
             model=os.getenv("GROQ_MODEL","meta-llama/llama-4-scout-17b-16e-instruct"),
