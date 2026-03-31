@@ -1,6 +1,5 @@
 from dotenv import load_dotenv
 load_dotenv()
-
 from fastapi import FastAPI, UploadFile, File, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
@@ -8,14 +7,52 @@ from typing import Optional
 import json, os, tempfile, re
 from memory import load_memory, save_memory, detect_flags
 
+# important to remove unwanted keywords to reduce noise
+# ─── Task Cleaning ─────────────────────────────────────────────
+
+def normalize_keyword(kw: str) -> str:
+    kw = kw.lower().strip()
+
+    # normalize variations
+    kw = kw.replace("payment api", "payments api")
+    kw = kw.replace("api integration", "integration")
+
+    return kw
+
+
+def clean_task(task: dict) -> dict:
+    owner = task.get("owner", "").lower()
+
+    # Fix "Everyone"
+    if owner == "everyone":
+        task["owner"] = "team"
+        owner = "team"
+
+    cleaned_keywords = []
+
+    for kw in task.get("keywords", []):
+        kw = normalize_keyword(kw)
+
+        # ❌ remove useless keyword like "ravi"
+        if kw == owner:
+            continue
+
+        cleaned_keywords.append(kw)
+
+    # remove duplicates
+    task["keywords"] = sorted(list(set(cleaned_keywords)))
+
+    return task
+
+
+def clean_tasks(tasks: list) -> list:
+    return [clean_task(t) for t in tasks]
+
 # ─── AI Provider setup ────────────────────────────────────────────────────────
-# Set AI_PROVIDER=mock   → no API key needed, instant fake data (for testing)
-# Set AI_PROVIDER=gemini → uses GEMINI_API_KEY
-# Set AI_PROVIDER=openai → uses OPENAI_API_KEY
 
 AI_PROVIDER = os.getenv("AI_PROVIDER", "mock").lower()
 
-if AI_PROVIDER == "openai":
+if AI_PROVIDER == "openai":   
     from openai import OpenAI
     openai_client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
     print("✅ Using OpenAI (GPT-4o + Whisper)")
@@ -24,6 +61,45 @@ elif AI_PROVIDER == "gemini":
     genai.configure(api_key=os.getenv("GEMINI_API_KEY"))
     gemini_model = genai.GenerativeModel(os.getenv("GEMINI_MODEL", "gemini-2.0-flash"))
     print(f"✅ Using Gemini ({os.getenv('GEMINI_MODEL', 'gemini-2.0-flash')})")
+elif AI_PROVIDER == "groq":
+    from groq import Groq
+    groq_client = Groq(api_key=os.getenv("GROQ_API_KEY"))
+    print(f"✅ Using Groq ({os.getenv('GROQ_MODEL', 'llama-3.3-70b-versatile')})") 
+    def groq_call(prompt: str) -> str:
+        response = groq_client.chat.completions.create(
+            model=os.getenv("GROQ_MODEL","meta-llama/llama-4-scout-17b-16e-instruct"),
+            messages=[
+                {"role": "system", "content": "You are a precise meeting analyst. Return ONLY valid JSON."},
+                {"role": "user", "content": prompt}
+            ],
+            temperature=0.2,
+            max_tokens=1024,
+            top_p=1,
+        )
+
+        return response.choices[0].message.content.strip()
+elif AI_PROVIDER=="nvidia":
+    from openai import OpenAI
+    nvidia_client = OpenAI(
+        base_url = "https://integrate.api.nvidia.com/v1",
+        api_key = os.getenv("NVIDIA_API_KEY")
+    )
+    NVIDIA_MODEL =os.getenv("NVIDIA_MODEL","z-ai/glm5")
+    print(f"✅ Using NVIDIA ({NVIDIA_MODEL})")
+    def nvidia_call(prompt: str) -> str:
+        response = nvidia_client.chat.completions.create(
+            model=NVIDIA_MODEL,
+            messages=[
+                {"role": "system", "content": "You are a strict JSON generator. Return ONLY valid JSON."},
+                {"role": "user", "content": prompt}
+            ],
+            temperature=0.2,
+            top_p=1,
+            max_tokens=2048,
+            stream=False  # IMPORTANT: no streaming
+        )
+
+        return response.choices[0].message.content.strip()
 else:
     print("✅ Using MOCK mode — no API key needed")
 
@@ -156,14 +232,27 @@ def call_ai(transcript_text: str) -> dict:
             f"You are a precise meeting analyst. Return only valid JSON.\n\n{prompt}"
         )
         raw = response.text.strip()
+    
+    elif AI_PROVIDER == "groq":
+        raw = groq_call(prompt)
 
+    elif AI_PROVIDER == "nvidia":
+        raw = nvidia_call(prompt)
     else:
         return MOCK_RESPONSE
 
     # Strip markdown fences
     raw = re.sub(r"^```(?:json)?\n?", "", raw)
     raw = re.sub(r"\n?```$", "", raw)
-    return json.loads(raw)
+    try:
+        return json.loads(raw)
+    except:
+        match = re.search(r"\{.*\}", raw, re.DOTALL)
+        if match:
+            return json.loads(match.group())
+        else:
+            raise ValueError("Invalid JSON from AI response")
+
 
 
 # ─── Routes ───────────────────────────────────────────────────────────────────
@@ -211,9 +300,12 @@ async def process_transcript(data: TranscriptInput):
     tasks   = extracted.get("tasks", [])
     summary = extracted.get("summary", "")
 
+    tasks = clean_tasks(tasks)
+
     memory = load_memory()
     tasks_with_flags = detect_flags(tasks, memory)
-    save_memory(data.meeting_title, tasks_with_flags, memory)
+    if tasks_with_flags:
+        save_memory(data.meeting_title, tasks_with_flags, memory)
     follow_ups = generate_follow_ups(tasks_with_flags)
 
     return {
