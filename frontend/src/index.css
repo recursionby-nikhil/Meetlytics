@@ -1,0 +1,253 @@
+@import url('https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=DM+Sans:wght@300;400;500;600&display=swap');
+
+/* ── THEME VARIABLES ─────────────────────────────────────────────────────────
+   Change --brand to any hex to recolor the entire app instantly.
+   ──────────────────────────────────────────────────────────────────────────── */
+:root {
+  --brand:        #7C3AED;
+  --brand-light:  #EDE9FE;
+  --brand-mid:    #8B5CF6;
+  --brand-dark:   #5B21B6;
+
+  --bg:           #FAFAF9;
+  --bg-2:         #F4F3F0;
+  --bg-3:         #EBEBEB;
+  --surface:      #FFFFFF;
+  --surface-2:    #F7F7F5;
+
+  --text:         #0F0F0E;
+  --text-2:       #4A4A47;
+  --text-3:       #9A9A96;
+  --text-inv:     #FFFFFF;
+
+  --border:       rgba(0,0,0,0.08);
+  --border-md:    rgba(0,0,0,0.13);
+  --border-strong:rgba(0,0,0,0.2);
+
+  --red:          #DC2626;
+  --red-bg:       #FEF2F2;
+  --red-text:     #991B1B;
+  --amber:        #D97706;
+  --amber-bg:     #FFFBEB;
+  --amber-text:   #92400E;
+  --green:        #059669;
+  --green-bg:     #ECFDF5;
+  --green-text:   #065F46;
+  --teal:         #0891B2;
+  --teal-bg:      #ECFEFF;
+  --teal-text:    #164E63;
+
+  --radius:       10px;
+  --radius-lg:    16px;
+  --radius-xl:    24px;
+  --shadow:       0 1px 3px rgba(0,0,0,0.08), 0 4px 16px rgba(0,0,0,0.06);
+  --shadow-lg:    0 4px 6px rgba(0,0,0,0.05), 0 10px 40px rgba(0,0,0,0.1);
+}
+
+[data-theme="dark"] {
+  --bg:           #0C0C0B;
+  --bg-2:         #141413;
+  --bg-3:         #1E1E1C;
+  --surface:      #1A1A18;
+  --surface-2:    #222220;
+
+  --text:         #F5F5F3;
+  --text-2:       #A8A8A4;
+  --text-3:       #5A5A57;
+  --text-inv:     #0F0F0E;
+
+  --border:       rgba(255,255,255,0.07);
+  --border-md:    rgba(255,255,255,0.12);
+  --border-strong:rgba(255,255,255,0.2);
+
+  --brand-light:  rgba(124,58,237,0.15);
+
+  --red-bg:       rgba(220,38,38,0.12);
+  --red-text:     #FCA5A5;
+  --amber-bg:     rgba(217,119,6,0.12);
+  --amber-text:   #FCD34D;
+  --green-bg:     rgba(5,150,105,0.12);
+  --green-text:   #6EE7B7;
+  --teal-bg:      rgba(8,145,178,0.12);
+  --teal-text:    #67E8F9;
+
+  --shadow:       0 1px 3px rgba(0,0,0,0.3), 0 4px 16px rgba(0,0,0,0.2);
+  --shadow-lg:    0 4px 6px rgba(0,0,0,0.3), 0 10px 40px rgba(0,0,0,0.3);
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+html { scroll-behavior: smooth; }
+
+body {
+  font-family: 'DM Sans', sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  font-size: 15px;
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+  transition: background 0.3s ease, color 0.3s ease;
+}
+
+h1,h2,h3,h4,h5 {
+  font-family: sans-serif, Syne;
+  line-height: 1.2;
+  font-weight: 700;
+}
+
+/* ── SCROLLBAR ──────────────────────────────────────────────────────────────── */
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--bg-3); border-radius: 99px; }
+
+/* ── ANIMATIONS ─────────────────────────────────────────────────────────────── */
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(16px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+@keyframes slideIn {
+  from { opacity: 0; transform: translateX(-12px); }
+  to   { opacity: 1; transform: translateX(0); }
+}
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50%       { opacity: 0.4; }
+}
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+@keyframes shimmer {
+  0%   { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+@keyframes checkPop {
+  0%   { transform: scale(0); }
+  60%  { transform: scale(1.2); }
+  100% { transform: scale(1); }
+}
+
+.fade-up   { animation: fadeUp 0.4s ease both; }
+.fade-in   { animation: fadeIn 0.3s ease both; }
+.slide-in  { animation: slideIn 0.35s ease both; }
+
+/* ── BUTTONS ────────────────────────────────────────────────────────────────── */
+button {
+  cursor: pointer;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 14px;
+  border: none;
+  border-radius: var(--radius);
+  transition: all 0.18s ease;
+}
+button:active { transform: scale(0.97); }
+
+.btn-primary {
+  background: var(--brand);
+  color: #fff;
+  padding: 12px 28px;
+  font-weight: 600;
+  font-size: 15px;
+  letter-spacing: -0.01em;
+  border-radius: var(--radius);
+}
+.btn-primary:hover { background: var(--brand-dark); transform: translateY(-1px); box-shadow: 0 4px 20px rgba(124,58,237,0.35); }
+.btn-primary:disabled { opacity: 0.45; cursor: not-allowed; transform: none; box-shadow: none; }
+
+.btn-ghost {
+  background: transparent;
+  color: var(--text-2);
+  border: 1.5px solid var(--border-md);
+  padding: 8px 18px;
+  font-weight: 500;
+}
+.btn-ghost:hover { background: var(--bg-2); border-color: var(--border-strong); color: var(--text); }
+
+.btn-icon {
+  background: var(--bg-2);
+  color: var(--text-2);
+  border: 1px solid var(--border);
+  width: 36px; height: 36px;
+  display: flex; align-items: center; justify-content: center;
+  border-radius: var(--radius);
+  font-size: 16px;
+}
+.btn-icon:hover { background: var(--bg-3); color: var(--text); }
+
+/* ── CARDS ──────────────────────────────────────────────────────────────────── */
+.card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 20px 24px;
+  box-shadow: var(--shadow);
+}
+
+/* ── BADGES ─────────────────────────────────────────────────────────────────── */
+.badge {
+  display: inline-flex; align-items: center; gap: 4px;
+  font-size: 11px; font-weight: 600;
+  padding: 3px 9px; border-radius: 99px;
+  letter-spacing: 0.02em; text-transform: uppercase;
+}
+.badge-red    { background: var(--red-bg);    color: var(--red-text); }
+.badge-amber  { background: var(--amber-bg);  color: var(--amber-text); }
+.badge-green  { background: var(--green-bg);  color: var(--green-text); }
+.badge-brand  { background: var(--brand-light); color: var(--brand-dark); }
+.badge-teal   { background: var(--teal-bg);   color: var(--teal-text); }
+.badge-gray   { background: var(--bg-3);      color: var(--text-2); }
+
+/* ── INPUTS ─────────────────────────────────────────────────────────────────── */
+input[type="text"], textarea, select {
+  font-family: 'DM Sans', sans-serif;
+  font-size: 14px;
+  background: var(--surface);
+  color: var(--text);
+  border: 1.5px solid var(--border-md);
+  border-radius: var(--radius);
+  padding: 10px 14px;
+  width: 100%;
+  transition: border-color 0.15s, box-shadow 0.15s;
+  outline: none;
+}
+input[type="text"]:focus, textarea:focus {
+  border-color: var(--brand);
+  box-shadow: 0 0 0 3px rgba(124,58,237,0.12);
+}
+input::placeholder, textarea::placeholder { color: var(--text-3); }
+
+/* ── TABS ───────────────────────────────────────────────────────────────────── */
+.tabs {
+  display: flex; gap: 2px;
+  background: var(--bg-2);
+  border-radius: var(--radius);
+  padding: 4px;
+  margin-bottom: 24px;
+}
+.tab {
+  flex: 1; padding: 9px 16px;
+  background: transparent; color: var(--text-3);
+  font-size: 13px; font-weight: 500;
+  border-radius: 7px;
+  transition: all 0.18s ease;
+  text-align: center;
+}
+.tab.active {
+  background: var(--surface);
+  color: var(--text);
+  box-shadow: var(--shadow);
+}
+.tab:hover:not(.active) { color: var(--text-2); }
+
+/* ── SPINNER ────────────────────────────────────────────────────────────────── */
+.spinner {
+  width: 18px; height: 18px;
+  border: 2px solid rgba(255,255,255,0.3);
+  border-top-color: #fff;
+  border-radius: 50%;
+  animation: spin 0.7s linear infinite;
+  display: inline-block;
+}

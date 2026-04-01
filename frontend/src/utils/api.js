@@ -1,4 +1,4 @@
-const BASE = import.meta.env.VITE_API_URL || "http://localhost:8000";
+const BASE = import.meta.env.VITE_API_URL || "http://127.0.0.1:8000";
 
 export async function transcribeAudio(file) {
   const form = new FormData();
@@ -14,7 +14,10 @@ export async function processTranscript(text, meetingTitle = "Untitled") {
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ text, meeting_title: meetingTitle }),
   });
-  if (!res.ok) throw new Error(await res.text());
+  if (!res.ok) {
+    const err = await res.json().catch(() => ({ detail: res.statusText }));
+    throw new Error(err.detail || "Request failed");
+  }
   return res.json();
 }
 
